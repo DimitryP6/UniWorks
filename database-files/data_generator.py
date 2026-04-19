@@ -6,8 +6,8 @@ import random
 
 
 ## Define the input and output file names.
-DDL_FILE_NAME : str = "uniworks_ddl.sql"
-DML_FILE_NAME : str = "uniworks_dml.sql"
+DDL_FILE_NAME : str = "01_uniworks_ddl.sql"
+DML_FILE_NAME : str = "02_uniworks_dml.sql"
 ## Minimum row counts for table types.
 STRONG_ENTITY_MIN : int = 30
 MULTIVALUE_MIN : int = 40
