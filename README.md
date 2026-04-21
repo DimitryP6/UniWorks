@@ -1,8 +1,22 @@
-# Spring 2026 CS 3200 Project Template
+# UniWorks
 
-This is a template repo for Dr. Fontenot's Spring 2026 CS 3200 Course Project.
+**UniWorks** is a data-driven internship and job search platform designed for university students, employers, career analysts, and system administrators in one centralized system. Students can manage job applications across multiple platforms in one place, employers can target qualified candidate, and data analysts can track hiring trends and outcomes. 
 
-It includes most of the infrastructure setup (containers), sample databases, and example UI pages. Explore it fully and ask questions!
+## Team ATDM
+
+| Name | Northeastern Email |
+|---|---|
+| Armarni Hall (Point Person) | hall.ar@northeastern.edu |
+| Seongcheol Hong | hong.seon@northeastern.edu |
+| Yinuo Bai | bai.yinu@northeastern.edu |
+| Dimitry Pianykh | pianykh.d@northeastern.edu |
+
+## User Personas
+
+- **Job Seeker (Sarah Smith)** – A university student looking to manage and track job applications in one place
+- **Job Poster (Tom Bombadil)** – An employer posting jobs and reviewing applicants
+- **Data Analyst (Lauren Mitchell)** – A career center analyst tracking hiring trends and student outcomes
+- **System Administrator (Alex Rial)** – A platform admin maintaining data integrity and system health
 
 ## Prerequisites
 
