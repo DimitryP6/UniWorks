@@ -49,7 +49,7 @@ try:
                     st.write(f"**Description:** {job.get('description', 'No description available.')}")
                 if st.button('Apply', key=f"apply_{job.get('post_id')}"):
                     st.session_state['selected_job_id'] = job.get('post_id')
-                    st.switch_page('pages/42_My_Applications.py')
+                    st.switch_page('pages/43_My_Applications.py')
     else:
         st.error('Failed to fetch job listings.')
 except requests.exceptions.RequestException as e:

@@ -25,10 +25,10 @@ with col2:
     if st.button('My Applications',
                  type='primary',
                  use_container_width=True):
-        st.switch_page('pages/42_My_Applications.py')
+        st.switch_page('pages/43_My_Applications.py')
 
 with col3:
     if st.button('My Profile',
                  type='primary',
                  use_container_width=True):
-        st.switch_page('pages/43_My_Profile.py')
+        st.switch_page('pages/44_My_Profile.py')
