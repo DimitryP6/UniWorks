@@ -62,6 +62,99 @@ VALUES
 ('Open Society Foundations', 'Organization', 3000000.00, 4),
 ('Anonymous Philanthropist', 'Individual', 1000000.00, 5);
 
+CREATE TABLE IF NOT EXISTS JobSeekers (
+    seeker_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    major VARCHAR(100),
+    grad_year INT
+);
+
+CREATE TABLE IF NOT EXISTS JobPosters (
+    poster_id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    website VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS JobPosts (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    poster_id INT,
+    title VARCHAR(255) NOT NULL,
+    location VARCHAR(100),
+    salary DECIMAL(10, 2),
+    attendance_type ENUM('remote', 'hybrid', 'on-site') DEFAULT 'on-site',
+    description TEXT,
+    is_active TINYINT(1) DEFAULT 1,
+    FOREIGN KEY (poster_id) REFERENCES JobPosters(poster_id)
+);
+
+CREATE TABLE IF NOT EXISTS Resumes (
+    resume_id INT AUTO_INCREMENT PRIMARY KEY,
+    seeker_id INT,
+    resume_text TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seeker_id) REFERENCES JobSeekers(seeker_id)
+);
+
+CREATE TABLE IF NOT EXISTS Applications (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    seeker_id INT,
+    job_id INT,
+    resume_id INT,
+    cover_letter TEXT,
+    stage VARCHAR(50) DEFAULT 'submitted',
+    status VARCHAR(50) DEFAULT 'pending',
+    application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (seeker_id) REFERENCES JobSeekers(seeker_id),
+    FOREIGN KEY (job_id) REFERENCES JobPosts(post_id),
+    FOREIGN KEY (resume_id) REFERENCES Resumes(resume_id)
+);
+
+INSERT INTO JobSeekers (name, email, major, grad_year)
+VALUES
+('Alex Johnson', 'alex.j@example.com', 'Computer Science', 2025),
+('Maria Reyes', 'maria.r@example.com', 'Data Science', 2026),
+('James Kim', 'james.k@example.com', 'Software Engineering', 2024),
+('Priya Patel', 'priya.p@example.com', 'Information Systems', 2025);
+
+INSERT INTO JobPosters (company_name, email, website)
+VALUES
+('TechCorp Inc.', 'hiring@techcorp.com', 'https://techcorp.com'),
+('DataVision LLC', 'jobs@datavision.com', 'https://datavision.com'),
+('CloudBase Systems', 'recruit@cloudbase.io', 'https://cloudbase.io'),
+('Nova Analytics', 'careers@novaanalytics.com', 'https://novaanalytics.com');
+
+INSERT INTO JobPosts (poster_id, title, location, salary, attendance_type, description, is_active)
+VALUES
+(1, 'Software Engineer', 'Boston, MA', 95000, 'hybrid', 'Build and maintain full-stack web applications using React and Python.', 1),
+(1, 'Backend Developer', 'New York, NY', 105000, 'on-site', 'Design scalable REST APIs and manage cloud infrastructure on AWS.', 1),
+(2, 'Data Analyst', 'Remote', 80000, 'remote', 'Analyze large datasets and build dashboards to support business decisions.', 1),
+(2, 'Machine Learning Engineer', 'Boston, MA', 120000, 'hybrid', 'Develop and deploy ML models for predictive analytics pipelines.', 1),
+(3, 'Cloud Engineer', 'Seattle, WA', 115000, 'on-site', 'Manage Kubernetes clusters and CI/CD pipelines for cloud-native services.', 1),
+(3, 'DevOps Engineer', 'Remote', 100000, 'remote', 'Automate deployment workflows and monitor production infrastructure.', 1),
+(4, 'Business Intelligence Dev', 'Chicago, IL', 88000, 'hybrid', 'Create BI reports and maintain data warehouse integrations.', 1),
+(4, 'Junior Data Scientist', 'Remote', 72000, 'remote', 'Support senior data scientists in model development and feature engineering.', 1);
+
+INSERT INTO Resumes (seeker_id, resume_text)
+VALUES
+(1, 'Alex Johnson - CS graduate. Skills: Python, React, SQL, Git. Experience: intern at startup building REST APIs.'),
+(1, 'Alex Johnson - alternate resume focused on data engineering and pipeline work.'),
+(2, 'Maria Reyes - Data Science student. Skills: Python, R, Tableau, scikit-learn. GPA 3.9.'),
+(3, 'James Kim - Software Engineering grad. Skills: Java, Spring Boot, AWS, Docker.'),
+(4, 'Priya Patel - IS graduate. Skills: SQL, Power BI, Excel, Salesforce.');
+
+INSERT INTO Applications (seeker_id, job_id, resume_id, cover_letter, stage, status, application_date)
+VALUES
+(1, 1, 1, 'I am excited to apply for the Software Engineer role at TechCorp.', 'interview', 'pending', '2025-03-10 09:00:00'),
+(1, 3, 1, 'My data analysis experience makes me a strong fit for the Data Analyst role.', 'submitted', 'pending', '2025-03-15 11:30:00'),
+(1, 8, 2, 'I am eager to grow as a data scientist and contribute to your team.', 'submitted', 'rejected', '2025-03-18 14:00:00'),
+(2, 3, 3, 'As a data science student I have hands-on Tableau and Python experience.', 'offer', 'accepted', '2025-03-05 10:00:00'),
+(2, 4, 3, 'I have built ML models for class projects and internships.', 'interview', 'pending', '2025-03-20 09:45:00'),
+(3, 2, 4, 'I have strong backend experience with Java and AWS.', 'submitted', 'pending', '2025-04-01 08:00:00'),
+(4, 7, 5, 'I have experience with Power BI and SQL reporting in enterprise environments.', 'submitted', 'pending', '2025-04-05 13:00:00');
+
 CREATE TABLE model1_params (
     sequence_number INT,
     beta_vals TEXT

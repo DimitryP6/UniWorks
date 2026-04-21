@@ -65,6 +65,28 @@ def classification_nav():
     )
 
 
+# ---- Role: job_seeker -------------------------------------------------------
+
+def job_seeker_home_nav():
+    st.sidebar.page_link(
+        "pages/40_Job_Seeker_Home.py", label="Job Seeker Home", icon="🏠"
+    )
+
+
+def browse_jobs_nav():
+    st.sidebar.page_link("pages/41_Browse_Jobs.py", label="Browse Jobs", icon="🔍")
+
+
+def my_applications_nav():
+    st.sidebar.page_link(
+        "pages/42_My_Applications.py", label="My Applications", icon="📋"
+    )
+
+
+def my_profile_nav():
+    st.sidebar.page_link("pages/43_My_Profile.py", label="My Profile", icon="👤")
+
+
 # ---- Role: administrator ----------------------------------------------------
 
 def admin_home_nav():
@@ -110,6 +132,12 @@ def SideBarLinks(show_home=False):
             prediction_nav()
             api_test_nav()
             classification_nav()
+
+        if st.session_state["role"] == "job_seeker":
+            job_seeker_home_nav()
+            browse_jobs_nav()
+            my_applications_nav()
+            my_profile_nav()
 
         if st.session_state["role"] == "administrator":
             admin_home_nav()
