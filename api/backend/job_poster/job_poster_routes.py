@@ -5,6 +5,44 @@ from mysql.connector import Error
 # Create a Blueprint for job_poster routes
 job_posts = Blueprint("job_poster", __name__)
 
+## Get all job posts with filters for location, salary, title, and attendance type.
+@job_posts.route("/job_post", methods=["GET"])
+def get_job_posts():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        current_app.logger.info("GET /job_seeker/job_post")
+        location = request.args.get("location")
+        salary = request.args.get("salary")
+        title = request.args.get("title")
+        attendance_type = request.args.get("attendance_type")
+        query = """
+        SELECT *
+        FROM job_posts
+        WHERE 1 = 1
+        """
+        params = []
+        if location:
+            query += " AND city_state = %s"
+            params.append(location)
+        if salary:
+            query += " AND job_salary >= %s"
+            params.append(salary)
+        if title:
+            query += " AND job_title LIKE %s"
+            params.append(f"%{title}%")
+        if attendance_type:
+            query += " AND attendance_type = %s"
+            params.append(attendance_type)
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+        current_app.logger.info(f"Retrieved {len(result)} job posts")
+        return jsonify(result), 200
+    except Error as e:
+        current_app.logger.error(f"Database error in get_job_posts: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
 @job_posts.route("/job_post", methods=["POST"])
 def create_job_post():
     cursor = get_db().cursor(dictionary=True)
@@ -17,25 +55,35 @@ def create_job_post():
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
 
+        # Insert the job post first
         query = """
-            INSERT INTO job_posts (job_title, job_salary, job_description, job_duration,
-            job_link, city_state, attendance_type, is_active, poster_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO job_posts (job_title, job_salary, job_description, job_duration,
+        city_state, attendance_type, poster_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query, (
             data["job_title"],
             data.get("job_salary"),
             data.get("job_description"),
             data["job_duration"],
-            data.get("job_link"),
             data["city_state"],
             data.get("attendance_type"),
-            data.get("is_active", 1),
             data["poster_id"]
         ))
 
+        post_id = cursor.lastrowid
+        if data.get("job_link"):
+            query = """
+            INSERT INTO job_links (post_id, job_link)
+            VALUES (%s, %s)
+            """
+            cursor.execute(query, (post_id, data["job_link"]))
+
         get_db().commit()
-        return jsonify({"message": "Job post created successfully", "post_id": cursor.lastrowid}), 201
+        return jsonify({
+            "message": "Job post created successfully",
+            "post_id": post_id
+        }), 201
     except Error as e:
         current_app.logger.error(f'Database error in create_job_post: {e}')
         return jsonify({"error": str(e)}), 500
@@ -79,16 +127,24 @@ def update_job_post(post_id):
             return jsonify({"error": "Job post not found"}), 404
 
         allowed_fields = ["job_title", "job_salary", "job_description", "job_duration",
-                          "job_link", "city_state", "attendance_type", "is_active"]
+                        "city_state", "attendance_type"]
         update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
         params = [data[f] for f in allowed_fields if f in data]
 
-        if not update_fields:
-            return jsonify({"error": "No valid fields to update"}), 400
+        if update_fields:
+            params.append(post_id)
+            query = f"UPDATE job_posts SET {', '.join(update_fields)} WHERE post_id = %s"
+            cursor.execute(query, params)
 
-        params.append(post_id)
-        query = f"UPDATE job_posts SET {', '.join(update_fields)} WHERE post_id = %s"
-        cursor.execute(query, params)
+        if data.get("job_link"):
+            query = """
+            INSERT IGNORE INTO job_links (post_id, job_link)
+            VALUES (%s, %s)
+            """
+            cursor.execute(query, (post_id, data["job_link"]))
+
+        if not update_fields and not data.get("job_link"):
+            return jsonify({"error": "No valid fields to update"}), 400
         get_db().commit()
 
         return jsonify({"message": "Job post updated successfully"}), 200
