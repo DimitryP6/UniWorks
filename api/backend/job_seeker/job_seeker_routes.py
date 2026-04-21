@@ -106,27 +106,6 @@ def get_job_post(post_id):
     finally:
         cursor.close()
 
-
-# --- Get employer contact info for a job post
-@job_seekers.route("/job_post/<int:post_id>/employer_contact", methods=["GET"])
-def get_employer_contact(post_id):
-    cursor = get_db().cursor(dictionary=True)
-    try:
-        current_app.logger.info(f"GET /job_post/{post_id}/employer_contact")
-        query = """
-        SELECT jp.poster_id, p.company_name, p.email, p.website
-        FROM JobPosts jp
-        JOIN JobPosters p ON jp.poster_id = p.poster_id
-        WHERE jp.post_id = %s
-        """
-        cursor.execute(query, (post_id,))
-        contact = cursor.fetchone()
-        if not contact:
-            return jsonify({"error": "Employer not found"}), 404
-        return jsonify(contact), 200
-    except Error as e:
-        current_app.logger.error(f"Database error in get_employer_contact: {e}")
-        
 ## Get company name, email, and website for a specific job poster.
 @job_seekers.route("/job_poster/<int:poster_id>", methods=["GET"])
 def get_job_poster(poster_id):
@@ -141,7 +120,7 @@ def get_job_poster(poster_id):
         WHERE jp.poster_id = %s
         """
         cursor.execute(query, (poster_id,))
-        result = cursor.fetchone()
+        result = cursor.fetchall()
         if not result:
             return jsonify({"error": "Job poster not found"}), 404
         return jsonify(result), 200
@@ -208,6 +187,10 @@ def add_resume():
         get_db().commit()
         return jsonify({"message": "Resume added", "resume_id": cursor.lastrowid}), 201
     except Error as e:
+        current_app.logger.error(f"Database error in add_resume: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 ## Get detailed information for a specific application.
 @job_seekers.route("/application/<int:application_id>", methods=["GET"])
