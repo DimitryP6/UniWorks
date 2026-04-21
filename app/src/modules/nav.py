@@ -115,7 +115,7 @@ def system_logs_nav():
  
 def admin_reports_nav():
     st.sidebar.page_link(
-        "pages/33_Admin_Management.py", label="Admin Management", icon="🗂️"
+        "pages/33_Admin_Reports.py", label="Admin Reports", icon="🗂️"
     )
 
 
