@@ -21,7 +21,7 @@ with col2:
 with col3:
     salary_filter = st.number_input('Min Salary', min_value=0, value=0, step=1000)
 with col4:
-    attendance_filter = st.selectbox('Work Type', ['Any', 'remote', 'hybrid', 'on-site'])
+    attendance_filter = st.selectbox('Work Type', ['Any', 'Remote', 'Hybrid', 'On-site'])
 
 params = {}
 if title_filter:
@@ -39,14 +39,21 @@ try:
         jobs = response.json()
         st.write(f'**{len(jobs)} job(s) found**')
         for job in jobs:
-            with st.expander(f"{job.get('title', 'Untitled')} — {job.get('location', 'N/A')} ({job.get('attendance_type', '')})"):
+            with st.expander(f"{job.get('job_title', 'Untitled')} — {job.get('city_state', 'N/A')} ({job.get('attendance_type', 'N/A')})"):
                 left, right = st.columns(2)
                 with left:
-                    st.write(f"**Salary:** ${job.get('salary', 'N/A'):,}" if isinstance(job.get('salary'), (int, float)) else f"**Salary:** {job.get('salary', 'N/A')}")
-                    st.write(f"**Location:** {job.get('location', 'N/A')}")
+                    salary = job.get('job_salary')
+                    if salary:
+                        st.write(f"**Salary:** ${float(salary):,.2f}")
+                    else:
+                        st.write(f"**Salary:** N/A")
+                    st.write(f"**Location:** {job.get('city_state', 'N/A')}")
                     st.write(f"**Work Type:** {job.get('attendance_type', 'N/A')}")
+                    st.write(f"**Duration:** {job.get('job_duration', 'N/A')}")
                 with right:
-                    st.write(f"**Description:** {job.get('description', 'No description available.')}")
+                    st.write(f"**Company:** {job.get('company_name', 'N/A')}")
+                    st.write(f"**Industry:** {job.get('industry', 'N/A')}")
+                    st.write(f"**Description:** {job.get('job_description', 'No description available.')}")
                 if st.button('Apply', key=f"apply_{job.get('post_id')}"):
                     st.session_state['selected_job_id'] = job.get('post_id')
                     st.switch_page('pages/43_My_Applications.py')

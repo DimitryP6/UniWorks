@@ -445,6 +445,30 @@ def update_resume(resume_id):
         cursor.close()
 
 
+## Delete a specific resume.
+@job_seekers.route("/resume/<int:resume_id>", methods=["DELETE"])
+def delete_resume(resume_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        current_app.logger.info(f"DELETE /job_seeker/resume/{resume_id}")
+        cursor.execute(
+            "SELECT resume_id FROM resumes WHERE resume_id = %s",
+            (resume_id,)
+        )
+        if not cursor.fetchone():
+            return jsonify({"error": "Resume not found"}), 404
+
+        cursor.execute("DELETE FROM personal_websites WHERE resume_id = %s", (resume_id,))
+        cursor.execute("DELETE FROM resumes WHERE resume_id = %s", (resume_id,))
+        get_db().commit()
+        return jsonify({"message": "Resume deleted successfully"}), 200
+    except Error as e:
+        current_app.logger.error(f"Database error in delete_resume: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
 ## Get all personal websites for a specific resume.
 @job_seekers.route("/resume/<int:resume_id>/personal_website", methods=["GET"])
 def get_personal_websites(resume_id):
