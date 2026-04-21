@@ -108,6 +108,103 @@ def get_employer_contact(post_id):
     finally:
         cursor.close()
 
+# --- Submit a new application (POST)
+@job_seeker.route("/application", methods=["POST"])
+def submit_application():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json()
+        required_fields = ["seeker_id", "job_id", "resume_id", "cover_letter"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        query = """
+            INSERT INTO Applications (seeker_id, job_id, resume_id, cover_letter, stage, status, application_date)
+            VALUES (%s, %s, %s, %s, 'submitted', 'pending', NOW())
+        """
+        cursor.execute(query, (
+            data["seeker_id"],
+            data["job_id"],
+            data["resume_id"],
+            data["cover_letter"]
+        ))
+        get_db().commit()
+        return jsonify({"message": "Application submitted", "application_id": cursor.lastrowid}), 201
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+# --- Add a new resume (POST)
+@job_seeker.route("/resume", methods=["POST"])
+def add_resume():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json()
+        required_fields = ["seeker_id", "resume_text"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        query = """
+            INSERT INTO Resumes (seeker_id, resume_text, created_at)
+            VALUES (%s, %s, NOW())
+        """
+        cursor.execute(query, (
+            data["seeker_id"],
+            data["resume_text"]
+        ))
+        get_db().commit()
+        return jsonify({"message": "Resume added", "resume_id": cursor.lastrowid}), 201
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+# --- Update a resume (PUT)
+@job_seeker.route("/resume/<int:resume_id>", methods=["PUT"])
+def update_resume(resume_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json()
+        if "resume_text" not in data:
+            return jsonify({"error": "Missing resume_text"}), 400
+        query = "UPDATE Resumes SET resume_text = %s, updated_at = NOW() WHERE resume_id = %s"
+        cursor.execute(query, (data["resume_text"], resume_id))
+        get_db().commit()
+        return jsonify({"message": "Resume updated"}), 200
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+# --- Delete an application (DELETE)
+@job_seeker.route("/application/<int:application_id>", methods=["DELETE"])
+def delete_application(application_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        query = "DELETE FROM Applications WHERE application_id = %s"
+        cursor.execute(query, (application_id,))
+        get_db().commit()
+        return jsonify({"message": "Application deleted"}), 200
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+# --- Delete a resume (DELETE)
+@job_seeker.route("/resume/<int:resume_id>", methods=["DELETE"])
+def delete_resume(resume_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        query = "DELETE FROM Resumes WHERE resume_id = %s"
+        cursor.execute(query, (resume_id,))
+        get_db().commit()
+        return jsonify({"message": "Resume deleted"}), 200
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
 # GET /job_seeker/{seeker_id} - Return profile information for {seeker_id}
 @job_seeker.route("/job_seeker/<int:seeker_id>", methods=["GET"])
 def get_job_seeker(seeker_id):
