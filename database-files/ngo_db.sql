@@ -67,7 +67,10 @@ CREATE TABLE IF NOT EXISTS job_seekers (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     major VARCHAR(100),
-    grad_year INT
+    grad_year INT,
+    occupation VARCHAR(100),
+    education VARCHAR(100),
+    location VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS job_posters (
@@ -112,18 +115,18 @@ CREATE TABLE IF NOT EXISTS applications (
     FOREIGN KEY (resume_id) REFERENCES resumes(resume_id)
 );
 
-INSERT INTO job_seekers (name, email, major, grad_year)
+INSERT INTO job_seekers (name, email, major, grad_year, occupation, education, location)
 VALUES
-('Alex Johnson', 'alex.j@example.com', 'Computer Science', 2025),
-('Maria Reyes', 'maria.r@example.com', 'Data Science', 2026),
-('James Kim', 'james.k@example.com', 'Software Engineering', 2024),
-('Priya Patel', 'priya.p@example.com', 'Information Systems', 2025),
-('Ethan Brooks', 'ethan.b@example.com', 'Computer Engineering', 2025),
-('Sophia Nguyen', 'sophia.n@example.com', 'Cybersecurity', 2026),
-('Liam Carter', 'liam.c@example.com', 'Data Science', 2024),
-('Aisha Williams', 'aisha.w@example.com', 'Computer Science', 2027),
-('Noah Martinez', 'noah.m@example.com', 'Software Engineering', 2025),
-('Emma Thompson', 'emma.t@example.com', 'Business Analytics', 2026);
+('Alex Johnson', 'alex.j@example.com', 'Computer Science', 2025, 'Software Engineer Intern', 'Bachelor of Science', 'Boston, MA'),
+('Maria Reyes', 'maria.r@example.com', 'Data Science', 2026, 'Data Science Intern', 'Bachelor of Science', 'New York, NY'),
+('James Kim', 'james.k@example.com', 'Software Engineering', 2024, 'Junior Developer', 'Bachelor of Engineering', 'Seattle, WA'),
+('Priya Patel', 'priya.p@example.com', 'Information Systems', 2025, 'Business Analyst Intern', 'Bachelor of Science', 'Chicago, IL'),
+('Ethan Brooks', 'ethan.b@example.com', 'Computer Engineering', 2025, 'Hardware Intern', 'Bachelor of Engineering', 'Austin, TX'),
+('Sophia Nguyen', 'sophia.n@example.com', 'Cybersecurity', 2026, 'Security Analyst Intern', 'Bachelor of Science', 'San Francisco, CA'),
+('Liam Carter', 'liam.c@example.com', 'Data Science', 2024, 'ML Engineer', 'Master of Science', 'Boston, MA'),
+('Aisha Williams', 'aisha.w@example.com', 'Computer Science', 2027, 'Teaching Assistant', 'Bachelor of Science', 'Atlanta, GA'),
+('Noah Martinez', 'noah.m@example.com', 'Software Engineering', 2025, 'DevOps Intern', 'Bachelor of Engineering', 'Denver, CO'),
+('Emma Thompson', 'emma.t@example.com', 'Business Analytics', 2026, 'Analytics Intern', 'Bachelor of Business Administration', 'Boston, MA');
 
 INSERT INTO job_posters (company_name, email, website)
 VALUES

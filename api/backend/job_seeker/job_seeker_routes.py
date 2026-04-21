@@ -307,7 +307,7 @@ def get_job_seeker(seeker_id):
     try:
         current_app.logger.info(f"GET /job_seeker/{seeker_id}")
         query = """
-        SELECT seeker_id, name, email, major, grad_year
+        SELECT seeker_id, name, email, major, grad_year, occupation, education, location
         FROM ngo_db.job_seekers
         WHERE seeker_id = %s
         """
@@ -330,7 +330,7 @@ def update_job_seeker(seeker_id):
     try:
         current_app.logger.info(f"PUT /job_seeker/{seeker_id}")
         data = request.get_json()
-        allowed_fields = ["name", "email", "major", "grad_year"]
+        allowed_fields = ["name", "email", "major", "grad_year", "occupation", "education", "location"]
         update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
         params = [data[f] for f in allowed_fields if f in data]
         if not update_fields:

@@ -21,12 +21,21 @@ try:
 
         st.write('### Profile Information')
         with st.form('profile_form'):
-            name = st.text_input('Name', value=profile.get('name', ''))
-            email = st.text_input('Email', value=profile.get('email', ''))
-            major = st.text_input('Major', value=profile.get('major', ''))
-            grad_year = st.number_input('Graduation Year', value=int(profile.get('grad_year', 2025)), step=1)
+            col1, col2 = st.columns(2)
+            with col1:
+                name = st.text_input('Name', value=profile.get('name', ''))
+                email = st.text_input('Email', value=profile.get('email', ''))
+                major = st.text_input('Major', value=profile.get('major', ''))
+                grad_year = st.number_input('Graduation Year', value=int(profile.get('grad_year') or 2025), step=1)
+            with col2:
+                occupation = st.text_input('Occupation', value=profile.get('occupation', ''))
+                education = st.text_input('Education', value=profile.get('education', ''))
+                location = st.text_input('Location', value=profile.get('location', ''))
             if st.form_submit_button('Save Changes', type='primary'):
-                payload = {'name': name, 'email': email, 'major': major, 'grad_year': grad_year}
+                payload = {
+                    'name': name, 'email': email, 'major': major, 'grad_year': grad_year,
+                    'occupation': occupation, 'education': education, 'location': location
+                }
                 r = requests.put(f'{API_BASE}/job_seeker/{seeker_id}', json=payload)
                 if r.status_code == 200:
                     st.success('Profile updated!')
