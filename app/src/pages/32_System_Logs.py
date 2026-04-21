@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import date
 
-API_BASE = "http://api:4000"
+API_BASE = "http://api:4000/admin"
 
 st.set_page_config(page_title="System Logs", layout="wide")
 st.title("System Logs")
