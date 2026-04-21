@@ -164,7 +164,7 @@ def update_data_report(report_id):
         FROM data_reports
         WHERE report_id = %s
         """
-        cursor.execute(query, report_id)
+        cursor.execute(query, (report_id,))
         if not cursor.fetchone():
             return jsonify({"error": "Data report not found"}), 404
         
@@ -200,7 +200,7 @@ def delete_data_report(report_id):
         FROM data_reports
         WHERE report_id = %s
         """
-        cursor.exeucute(query, report_id)
+        cursor.execute(query, (report_id,))
         if not cursor.fetchone():
             return jsonify({"error": "Data report not found"}), 404
 
@@ -208,12 +208,12 @@ def delete_data_report(report_id):
         DELETE FROM application_reports
         WHERE report_id = %s
         """
-        cursor.execute(query, report_id)
+        cursor.execute(query, (report_id,))
         query = """
         DELETE FROM data_reports
         WHERE report_id = %s
         """
-        cursor.execute(query, report_id)
+        cursor.execute(query, (report_id,))
         get_db().commit()
         return jsonify({"message": "Report deleted successfully"}), 200
     except Error as e:

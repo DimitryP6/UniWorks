@@ -4,16 +4,18 @@ import os
 import logging
 
 from backend.db_connection import init_app as init_db
-from backend.simple.simple_routes import simple_routes
-from backend.job_posts.job_post_routes import job_posts
 
 # The admin blueprints
 from backend.admin.user_routes import user_routes
 from backend.admin.admin_routes import admin_routes
 from backend.admin.data_report_routes import data_report_routes
 from backend.admin.system_log_routes import system_log_routes
-from backend.data_analysts import data_analyst_routes
-from backend.job_posts import job_post_routes
+
+# The data analyst blueprint
+from backend.data_analysts.data_analyst_routes import data_analysts
+
+# The job poster blueprint
+from backend.job_poster.job_poster_routes import job_posts
 
 def create_app():
     app = Flask(__name__)
@@ -42,12 +44,11 @@ def create_app():
     # Register the routes from each Blueprint with the app object
     # and give a url prefix to each.
     app.logger.info("create_app(): registering blueprints")
-    app.register_blueprint(simple_routes)
-    app.register_blueprint(job_posts, url_prefix="/jobs") 
+    app.register_blueprint(job_posts, url_prefix="/job_poster") 
     app.register_blueprint(user_routes, url_prefix="/user")
     app.register_blueprint(admin_routes, url_prefix="/admin")
     app.register_blueprint(data_report_routes, url_prefix="/data_report")
     app.register_blueprint(system_log_routes, url_prefix="/system_log")
-    app.register_blueprint(data_analyst, url_prefix="data_analyst")
+    app.register_blueprint(data_analysts, url_prefix="/data_analyst")
 
     return app
