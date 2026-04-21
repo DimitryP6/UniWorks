@@ -23,3 +23,35 @@ In order to populate the database with fake values, run the _database-files/data
 which will in turn create a _02_uniworks_dml.sql_, which can then be composed when Docker runs to populate the database initially.
 If _database-files/data_generator.py_ is not run, then there will be no fake data inserted.
 Also, a _.env_ file can be created under the api subdirectory, and Docker's compose command should work.
+
+## Set up Info 
+ 
+### 1. Clone the repo
+
+```bash
+git clone <your-repo-url>
+cd UniWorks
+```
+
+### 2. Create the '.env' file
+
+Make a .env file in the api folder in this format
+```
+SECRET_KEY=your-secret-key
+DB_USER=root
+DB_HOST=db
+DB_PORT=3306
+DB_NAME=UniWorks
+MYSQL_ROOT_PASSWORD=your-strong-password
+```
+
+### 3. Start the Docker Containers
+
+```bash
+docker compose up -d --build
+```
+
+### 4. Stopping the Containers
+```bash
+docker compose down
+```
