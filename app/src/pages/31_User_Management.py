@@ -1,11 +1,7 @@
 import streamlit as st
 import requests
 
-<<<<<<< HEAD
 API_BASE =  "http://localhost:4000"
-=======
-API_BASE = "http://web-api:4000"
->>>>>>> 77caebaca713a8e8d8732aaf45a19dce39854f17
 
 st.set_page_config(page_title="User Management", layout="wide")
 st.title("User Management")
