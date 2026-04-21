@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_BASE = "http://api:4000"
+API_BASE = "http://api:4000/admin"
 
 st.set_page_config(page_title="User Management", layout="wide")
 st.title("User Management")
