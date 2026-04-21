@@ -19,25 +19,25 @@ def about_page_nav():
  
 def job_seeker_home_nav():
     st.sidebar.page_link(
-        "pages/00_Job_Seeker_Home.py", label="Job Seeker Home", icon="👤"
+        "pages/40_Job_Seeker_Home.py", label="Job Seeker Home", icon="👤"
     )
- 
- 
+
+
 def browse_jobs_nav():
     st.sidebar.page_link(
-        "pages/01_Browse_Jobs.py", label="Browse Jobs", icon="🔍"
+        "pages/41_Browse_Jobs.py", label="Browse Jobs", icon="🔍"
     )
- 
- 
+
+
 def my_applications_nav():
     st.sidebar.page_link(
-        "pages/02_My_Applications.py", label="My Applications", icon="📋"
+        "pages/42_My_Applications.py", label="My Applications", icon="📋"
     )
- 
- 
+
+
 def my_profile_nav():
     st.sidebar.page_link(
-        "pages/03_My_Profile.py", label="My Profile", icon="📝"
+        "pages/43_My_Profile.py", label="My Profile", icon="📝"
     )
 
 # ---- Role: job_poster (Tom) -------------------------------------------------
@@ -64,7 +64,8 @@ def post_limits_nav():
     st.sidebar.page_link(
         "pages/13_Job_Limits.py", label="Job Limits & Links", icon="⚙️"
     )
- 
+
+
  
 # ---- Role: data_analyst (Lauren) --------------------------------------------
  
@@ -139,11 +140,25 @@ def SideBarLinks(show_home=False):
 
     if st.session_state["authenticated"]:
 
+        if st.session_state["role"] == "pol_strat_advisor":
+            pol_strat_home_nav()
+            world_bank_viz_nav()
+            map_demo_nav()
+
+        if st.session_state["role"] == "usaid_worker":
+            usaid_worker_home_nav()
+            ngo_directory_nav()
+            add_ngo_nav()
+            prediction_nav()
+            api_test_nav()
+            classification_nav()
+
         if st.session_state["role"] == "job_seeker":
             job_seeker_home_nav()
             browse_jobs_nav()
             my_applications_nav()
             my_profile_nav()
+
  
         if st.session_state["role"] == "job_poster":
             job_poster_home_nav()

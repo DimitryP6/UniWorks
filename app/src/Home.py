@@ -47,8 +47,9 @@ if st.button("Act as Sarah, a Job Seeker",
     st.session_state['authenticated'] = True
     st.session_state['role'] = 'job_seeker'
     st.session_state['first_name'] = 'Sarah'
+    st.session_state['seeker_id'] = 1
     logger.info("Logging in as Job Seeker Persona")
-    st.switch_page('pages/00_Job_Seeker_Home.py')
+    st.switch_page('pages/40_Job_Seeker_Home.py')
  
 # Job Poster - Tom Bombadil
 if st.button('Act as Tom, a Job Poster',
