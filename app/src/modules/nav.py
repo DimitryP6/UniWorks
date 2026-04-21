@@ -19,7 +19,7 @@ def about_page_nav():
  
 def job_seeker_home_nav():
     st.sidebar.page_link(
-        "pages/40_Job_Seeker_Home.py", label="Job Seeker Home", icon="👤"
+        "pages/42_Job_Seeker_Home.py", label="Job Seeker Home", icon="👤"
     )
 
 
@@ -31,13 +31,13 @@ def browse_jobs_nav():
 
 def my_applications_nav():
     st.sidebar.page_link(
-        "pages/42_My_Applications.py", label="My Applications", icon="📋"
+        "pages/43_My_Applications.py", label="My Applications", icon="📋"
     )
 
 
 def my_profile_nav():
     st.sidebar.page_link(
-        "pages/43_My_Profile.py", label="My Profile", icon="📝"
+        "pages/44_My_Profile.py", label="My Profile", icon="📝"
     )
 
 # ---- Role: job_poster (Tom) -------------------------------------------------
