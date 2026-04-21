@@ -22,13 +22,13 @@ def get_job_posts():
         """
         params = []
         if location:
-            query += " AND city_state = %s"
+            query += " AND location = %s"
             params.append(location)
         if salary:
-            query += " AND job_salary >= %s"
+            query += " AND salary >= %s"
             params.append(salary)
         if title:
-            query += " AND job_title LIKE %s"
+            query += " AND title LIKE %s"
             params.append(f"%{title}%")
         if attendance_type:
             query += " AND attendance_type = %s"
@@ -44,16 +44,16 @@ def get_job_posts():
         cursor.close()
 
 # --- Get all jobs (open and closed) for a job seeker (jobs they've applied to)
-@job_seekers.route("/job_seeker/<int:seeker_id>/jobs", methods=["GET"])
+@job_seekers.route("/<int:seeker_id>/jobs", methods=["GET"])
 def get_jobs_applied_to(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f"GET /job_seeker/{seeker_id}/jobs")
         query = """
         SELECT jp.*, a.application_id, a.stage, a.status
-        FROM Applications a
-        JOIN JobPosts jp ON a.job_id = jp.post_id
-        WHERE a.seeker_id = %s
+        FROM applications a
+        JOIN job_posts jp ON a.job_id = jp.post_id
+        WHERE a.applicant_id = %s
         ORDER BY a.application_date DESC
         """
         cursor.execute(query, (seeker_id,))
@@ -66,15 +66,15 @@ def get_jobs_applied_to(seeker_id):
         cursor.close()
 
 # --- Get application status for a job seeker (all applications)
-@job_seekers.route("/job_seeker/<int:seeker_id>/application_status", methods=["GET"])
+@job_seekers.route("/<int:seeker_id>/application_status", methods=["GET"])
 def get_application_status(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f"GET /job_seeker/{seeker_id}/application_status")
         query = """
         SELECT a.application_id, a.job_id, jp.title, a.stage, a.status, a.application_date
-        FROM Applications a
-        JOIN JobPosts jp ON a.job_id = jp.post_id
+        FROM applications a
+        JOIN job_posts jp ON a.job_id = jp.post_id
         WHERE a.seeker_id = %s
         ORDER BY a.application_date DESC
         """
@@ -138,22 +138,21 @@ def create_application():
     try:
         current_app.logger.info("POST /job_seeker/application")
         data = request.get_json()
-        required_fields = ["applicant_id", "job_id", "resume_id", "application_date"]
+        required_fields = ["seeker_id", "job_id", "resume_id"]
         for field in required_fields:
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         query = """
-        INSERT INTO applications (cover_letter, stage, status, application_date, applicant_id, job_id, resume_id)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO applications (seeker_id, job_id, resume_id, cover_letter, stage, status)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query, (
-            data.get("cover_letter"),
-            "Applied",
-            "Waiting",
-            data["application_date"],
-            data["applicant_id"],
+            data["seeker_id"],
             data["job_id"],
-            data["resume_id"]
+            data["resume_id"],
+            data.get("cover_letter", ""),
+            "submitted",
+            "pending"
         ))
         get_db().commit()
         return jsonify({
@@ -255,25 +254,17 @@ def delete_application(application_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f"DELETE /job_seeker/application/{application_id}")
-        query = """
-        SELECT *
-        FROM activities
-        WHERE application_id = %s
-        """
-        cursor.execute(query, application_id)
+        cursor.execute(
+            "SELECT application_id FROM applications WHERE application_id = %s",
+            (application_id,)
+        )
         if not cursor.fetchone():
             return jsonify({"error": "Application not found"}), 404
 
-        query = """
-        DELETE FROM activities
-        WHERE application_id = %s
-        """
-        cursor.execute(query, application_id)
-        query = """
-        DELETE FROM applications
-        WHERE application_id = %s
-        """
-        cursor.execute(query, application_id)
+        cursor.execute(
+            "DELETE FROM applications WHERE application_id = %s",
+            (application_id,)
+        )
         get_db().commit()
         return jsonify({"message": "Application withdrawn successfully"}), 200
     except Error as e:
@@ -309,18 +300,15 @@ def get_application_activities(application_id):
         cursor.close()
 
 ## Get profile information for a specific job seeker.
-@job_seekers.route("/job_seeker/<int:seeker_id>", methods=["GET"])
+@job_seekers.route("/<int:seeker_id>", methods=["GET"])
 def get_job_seeker(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f"GET /job_seeker/job_seeker/{seeker_id}")
         query = """
-        SELECT js.seeker_id, js.major, js.university, js.city_state,
-               js.phone_number, js.degree_level, js.graduation_year,
-               js.profile_picture, u.full_name, u.email
-        FROM job_seekers js
-        JOIN users u ON js.user_id = u.user_id
-        WHERE js.seeker_id = %s
+        SELECT seeker_id, name, email, major, grad_year
+        FROM job_seekers
+        WHERE seeker_id = %s
         """
         cursor.execute(query, (seeker_id,))
         result = cursor.fetchone()
@@ -335,14 +323,13 @@ def get_job_seeker(seeker_id):
 
 
 ## Update profile information for a specific job seeker.
-@job_seekers.route("/job_seeker/<int:seeker_id>", methods=["PUT"])
+@job_seekers.route("/<int:seeker_id>", methods=["PUT"])
 def update_job_seeker(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f"PUT /job_seeker/job_seeker/{seeker_id}")
         data = request.get_json()
-        allowed_fields = ["major", "university", "city_state", "phone_number",
-                          "degree_level", "graduation_year", "profile_picture"]
+        allowed_fields = ["name", "email", "major", "grad_year"]
         update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
         params = [data[f] for f in allowed_fields if f in data]
         if not update_fields:
@@ -364,7 +351,7 @@ def update_job_seeker(seeker_id):
 
 
 ## Get all applications submitted by a specific job seeker.
-@job_seekers.route("/job_seeker/<int:seeker_id>/application", methods=["GET"])
+@job_seekers.route("/<int:seeker_id>/application", methods=["GET"])
 def get_seeker_applications(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
@@ -417,7 +404,7 @@ def update_resume(resume_id):
     try:
         current_app.logger.info(f"PUT /job_seeker/resume/{resume_id}")
         data = request.get_json()
-        allowed_fields = ["education", "work_experience", "personal_project", "hobby"]
+        allowed_fields = ["resume_text"]
         update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
         params = [data[f] for f in allowed_fields if f in data]
         if not update_fields:

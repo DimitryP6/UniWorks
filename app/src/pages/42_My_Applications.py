@@ -29,7 +29,7 @@ if 'selected_job_id' in st.session_state:
             'cover_letter': cover_letter,
         }
         try:
-            r = requests.post(f'{API_BASE}/application', json=payload)
+            r = requests.post(f'{API_BASE}/job_seeker/application', json=payload)
             if r.status_code == 201:
                 st.success('Application submitted!')
                 del st.session_state['selected_job_id']
@@ -59,7 +59,7 @@ try:
                     st.write(f"**Applied:** {app.get('application_date', 'N/A')}")
                     if st.button('Withdraw', key=f"del_{app.get('application_id')}"):
                         try:
-                            dr = requests.delete(f"{API_BASE}/application/{app.get('application_id')}")
+                            dr = requests.delete(f"{API_BASE}/job_seeker/application/{app.get('application_id')}")
                             if dr.status_code == 200:
                                 st.success('Application withdrawn.')
                                 st.rerun()

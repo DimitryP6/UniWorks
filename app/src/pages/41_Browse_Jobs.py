@@ -34,7 +34,7 @@ if attendance_filter != 'Any':
     params['attendance_type'] = attendance_filter
 
 try:
-    response = requests.get(f'{API_BASE}/job_post', params=params)
+    response = requests.get(f'{API_BASE}/job_seeker/job_post', params=params)
     if response.status_code == 200:
         jobs = response.json()
         st.write(f'**{len(jobs)} job(s) found**')

@@ -15,7 +15,7 @@ API_BASE = 'http://web-api:4000'
 seeker_id = st.session_state.get('seeker_id', 1)
 
 try:
-    response = requests.get(f'{API_BASE}/job_seeker/{seeker_id}')
+    response = requests.get(f'{API_BASE}/job_seeker/job_seeker/{seeker_id}')
     if response.status_code == 200:
         profile = response.json()
 
@@ -51,7 +51,7 @@ with col1:
         resume_text = st.text_area('Resume Text', height=200)
         if st.form_submit_button('Upload Resume', type='primary'):
             try:
-                r = requests.post(f'{API_BASE}/resume', json={'seeker_id': seeker_id, 'resume_text': resume_text})
+                r = requests.post(f'{API_BASE}/job_seeker/resume', json={'seeker_id': seeker_id, 'resume_text': resume_text})
                 if r.status_code == 201:
                     st.success(f"Resume added (ID: {r.json().get('resume_id')})")
                 else:
@@ -67,7 +67,7 @@ with col2:
     with btn_col1:
         if st.button('Update', use_container_width=True):
             try:
-                r = requests.put(f'{API_BASE}/resume/{resume_id_input}', json={'resume_text': updated_text})
+                r = requests.put(f'{API_BASE}/job_seeker/resume/{resume_id_input}', json={'resume_text': updated_text})
                 if r.status_code == 200:
                     st.success('Resume updated!')
                 else:
@@ -77,7 +77,7 @@ with col2:
     with btn_col2:
         if st.button('Delete', use_container_width=True):
             try:
-                r = requests.delete(f'{API_BASE}/resume/{resume_id_input}')
+                r = requests.delete(f'{API_BASE}/job_seeker/resume/{resume_id_input}')
                 if r.status_code == 200:
                     st.success('Resume deleted.')
                 else:
