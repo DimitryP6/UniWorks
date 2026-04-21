@@ -40,33 +40,42 @@ st.write('#### Hi! As which user would you like to log in?')
 # functionality, we put a button on the screen that the user
 # can click to MIMIC logging in as that mock user.
 
-if st.button("Act as John, a Political Strategy Advisor",
-             type='primary',
-             use_container_width=True):
-    # when user clicks the button, they are now considered authenticated
-    st.session_state['authenticated'] = True
-    # we set the role of the current user
-    st.session_state['role'] = 'pol_strat_advisor'
-    # we add the first name of the user (so it can be displayed on
-    # subsequent pages).
-    st.session_state['first_name'] = 'John'
-    # finally, we ask streamlit to switch to another page, in this case, the
-    # landing page for this particular user type
-    logger.info("Logging in as Political Strategy Advisor Persona")
-    st.switch_page('pages/00_Pol_Strat_Home.py')
-
-if st.button('Act as Mohammad, a USAID Worker',
+# Job Seeker - Sarah Smith
+if st.button("Act as Sarah, a Job Seeker",
              type='primary',
              use_container_width=True):
     st.session_state['authenticated'] = True
-    st.session_state['role'] = 'usaid_worker'
-    st.session_state['first_name'] = 'Mohammad'
-    st.switch_page('pages/10_USAID_Worker_Home.py')
-
-if st.button('Act as System Administrator',
+    st.session_state['role'] = 'job_seeker'
+    st.session_state['first_name'] = 'Sarah'
+    logger.info("Logging in as Job Seeker Persona")
+    st.switch_page('pages/00_Job_Seeker_Home.py')
+ 
+# Job Poster - Tom Bombadil
+if st.button('Act as Tom, a Job Poster',
+             type='primary',
+             use_container_width=True):
+    st.session_state['authenticated'] = True
+    st.session_state['role'] = 'job_poster'
+    st.session_state['first_name'] = 'Tom'
+    logger.info("Logging in as Job Poster Persona")
+    st.switch_page('pages/10_Job_Poster_Home.py')
+ 
+# Data Analyst - Lauren Mitchell
+if st.button('Act as Lauren, a Data Analyst',
+             type='primary',
+             use_container_width=True):
+    st.session_state['authenticated'] = True
+    st.session_state['role'] = 'data_analyst'
+    st.session_state['first_name'] = 'Lauren'
+    logger.info("Logging in as Data Analyst Persona")
+    st.switch_page('pages/20_Data_Analyst_Home.py')
+ 
+# System Administrator - Alex Rial
+if st.button('Act as Alex, a System Administrator',
              type='primary',
              use_container_width=True):
     st.session_state['authenticated'] = True
     st.session_state['role'] = 'administrator'
-    st.session_state['first_name'] = 'SysAdmin'
-    st.switch_page('pages/20_Admin_Home.py')
+    st.session_state['first_name'] = 'Alex'
+    logger.info("Logging in as System Administrator Persona")
+    st.switch_page('pages/30_Admin_Home.py')
