@@ -27,7 +27,7 @@ with st.sidebar:
 # Fetch and display users
 # ------------------------------------------------------------
 try:
-    response = requests.get(f"{API_BASE}/admin/user")
+    response = requests.get(f"{API_BASE}/user")
     users = response.json()
  
     # Apply filters (client-side since API doesn't support them)
@@ -63,7 +63,7 @@ archive_date = st.date_input("Archive users inactive before", key="archive_date"
 
 if st.button("Archive Inactive Users", type="primary"):
     try:
-        res = requests.put(f"{API_BASE}/admin/user")
+        res = requests.put(f"{API_BASE}/user")
         data = res.json()
         st.success(f"{data.get('archived_count', 0)} user(s) archived.")
     except Exception as e:
@@ -81,7 +81,7 @@ seeker_id_input = st.number_input("Enter Job Seeker ID to edit", min_value=1, st
  
 if st.button("Load Job Seeker"):
     try:
-        res = requests.get(f"{API_BASE}/admin/job_seeker/{int(seeker_id_input)}")
+        res = requests.get(f"{API_BASE}/job_seeker/{int(seeker_id_input)}")
         if res.status_code == 404:
             st.warning("Job seeker not found.")
             st.session_state.loaded_seeker = None
@@ -118,7 +118,7 @@ if st.session_state.loaded_seeker:
             "degree_level": new_degree,
         }
         try:
-            res = requests.put(f"{API_BASE}/admin/job_seeker/{int(seeker_id_input)}", json=payload)
+            res = requests.put(f"{API_BASE}/job_seeker/{int(seeker_id_input)}", json=payload)
             st.success(res.json().get("message", "Profile updated successfully."))
             st.session_state.loaded_seeker = None
         except Exception as e:
@@ -135,7 +135,7 @@ admin_id_input = st.number_input("Enter Admin ID to edit", min_value=1, step=1, 
  
 if st.button("Load Admin"):
     try:
-        res = requests.get(f"{API_BASE}/admin/admin/{int(admin_id_input)}")
+        res = requests.get(f"{API_BASE}/admin/{int(admin_id_input)}")
         if res.status_code == 404:
             st.warning("Admin not found.")
             st.session_state.loaded_admin = None
@@ -162,7 +162,7 @@ if st.session_state.loaded_admin:
     if st.button("Save Admin Changes", type="primary"):
         payload = {"role": new_role, "has_access": new_access}
         try:
-            res = requests.put(f"{API_BASE}/admin/admin/{int(admin_id_input)}", json=payload)
+            res = requests.put(f"{API_BASE}/admin/{int(admin_id_input)}", json=payload)
             st.success(res.json().get("message", "Admin updated."))
             st.session_state.loaded_admin = None
         except Exception as e:
