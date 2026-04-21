@@ -24,6 +24,10 @@ which will in turn create a _02_uniworks_dml.sql_, which can then be composed wh
 If _database-files/data_generator.py_ is not run, then there will be no fake data inserted.
 Also, a _.env_ file can be created under the api subdirectory, and Docker's compose command should work.
 
+## Pitch & Demo Video
+
+https://northeastern-my.sharepoint.com/:v:/r/personal/hall_ar_northeastern_edu/Documents/Recordings/Project%20recording-20260421_111949-Meeting%20Recording.mp4?csf=1&web=1&e=dA1MBL&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
+
 ## Set up Info 
  
 ### 1. Clone the repo
