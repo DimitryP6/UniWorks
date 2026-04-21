@@ -83,7 +83,6 @@ try:
                         st.write(f"**Application Date:** {app.get('application_date', 'N/A')}")
 
                     with status_col:
-                        st.write("**Status**")
                         st.write(f"**Industry:** {app.get('industry', 'N/A')}")
                         st.write(f"**Stage:** {app.get('stage', 'N/A')}")
                         st.write(f"**Status:** {app.get('status', 'N/A')}")

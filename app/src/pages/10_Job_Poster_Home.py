@@ -25,7 +25,7 @@ with col2:
     if st.button('View Applications',
                  type='primary',
                  use_container_width=True):
-        st.switch_page('pages/12_View_Applicants.py')
+        st.switch_page('pages/12_View_Applications.py')
  
 with col3:
     if st.button('Job Limitations',

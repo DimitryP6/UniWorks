@@ -298,21 +298,23 @@ def update_job_limit(post_id):
         current_app.logger.info(f'PUT /job_post/{post_id}/job_limit')
         data = request.get_json()
 
-        cursor.execute("SELECT job_id FROM job_limits WHERE job_id = %s", (post_id,))
-        if not cursor.fetchone():
-            return jsonify({"error": "Job limit not found"}), 404
-
-        allowed_fields = ["max_count", "college", "min_gpa", "university"]
-        update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
-        params = [data[f] for f in allowed_fields if f in data]
-
-        if not update_fields:
-            return jsonify({"error": "No valid fields to update"}), 400
-
-        params.append(post_id)
-        query = f"UPDATE job_limits SET {', '.join(update_fields)} WHERE job_id = %s"
-        cursor.execute(query, params)
+        query = """
+        UPDATE job_limits
+        SET max_count = %s, min_gpa = %s, university = %s, college = %s
+        WHERE job_id = %s
+        """
+        cursor.execute(query, (
+            data.get("max_count"),
+            data.get("min_gpa"),
+            data.get("university"),
+            data.get("college"),
+            post_id
+        ))
         get_db().commit()
+
+        cursor.execute("SELECT job_id FROM job_limits WHERE job_id = %s", post_id)
+        if not cursor.fetchall():
+            return jsonify({"error": "Job limit not found"}), 404
 
         return jsonify({"message": "Job limit updated successfully"}), 200
     except Error as e:

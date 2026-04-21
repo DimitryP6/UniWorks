@@ -54,9 +54,9 @@ def manage_posts_nav():
     )
  
  
-def view_applicants_nav():
+def view_applications_nav():
     st.sidebar.page_link(
-        "pages/12_View_Applicants.py", label="View Applicants", icon="👥"
+        "pages/12_View_Applications.py", label="View Applications", icon="👥"
     )
  
  
@@ -148,7 +148,7 @@ def SideBarLinks(show_home=False):
         if st.session_state["role"] == "job_poster":
             job_poster_home_nav()
             manage_posts_nav()
-            view_applicants_nav()
+            view_applications_nav()
             post_limits_nav()
  
         if st.session_state["role"] == "data_analyst":
