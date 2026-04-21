@@ -335,39 +335,6 @@ def get_applications_for_post(post_id):
     finally:
         cursor.close()
 
-@job_posts.route("/application/<int:application_id>", methods=["PUT"])
-def update_application(application_id):
-    cursor = get_db().cursor(dictionary=True)
-    try:
-        current_app.logger.info(f'PUT /application/{application_id}')
-        data = request.get_json()
-
-        cursor.execute(
-            "SELECT application_id FROM applications WHERE application_id = %s",
-            (application_id,)
-        )
-        if not cursor.fetchone():
-            return jsonify({"error": "Application not found"}), 404
-
-        allowed_fields = ["stage", "status"]
-        update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
-        params = [data[f] for f in allowed_fields if f in data]
-
-        if not update_fields:
-            return jsonify({"error": "No valid fields to update"}), 400
-
-        params.append(application_id)
-        query = f"UPDATE applications SET {', '.join(update_fields)} WHERE application_id = %s"
-        cursor.execute(query, params)
-        get_db().commit()
-
-        return jsonify({"message": "Application updated successfully"}), 200
-    except Error as e:
-        current_app.logger.error(f'Database error in update_application: {e}')
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-
 @job_posts.route("/application/<int:application_id>/activity", methods=["POST"])
 def add_application_activity(application_id):
     cursor = get_db().cursor(dictionary=True)
