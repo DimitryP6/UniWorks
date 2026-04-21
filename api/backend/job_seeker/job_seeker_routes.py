@@ -43,6 +43,46 @@ def get_job_posts():
     finally:
         cursor.close()
 
+# --- Get all jobs (open and closed) for a job seeker (jobs they've applied to)
+@job_seekers.route("/job_seeker/<int:seeker_id>/jobs", methods=["GET"])
+def get_jobs_applied_to(seeker_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        current_app.logger.info(f"GET /job_seeker/{seeker_id}/jobs")
+        query = """
+        SELECT jp.*, a.application_id, a.stage, a.status
+        FROM Applications a
+        JOIN JobPosts jp ON a.job_id = jp.post_id
+        WHERE a.seeker_id = %s
+        ORDER BY a.application_date DESC
+        """
+        cursor.execute(query, (seeker_id,))
+        jobs = cursor.fetchall()
+        return jsonify(jobs), 200
+    except Error as e:
+        current_app.logger.error(f"Database error in get_jobs_applied_to: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+# --- Get application status for a job seeker (all applications)
+@job_seekers.route("/job_seeker/<int:seeker_id>/application_status", methods=["GET"])
+def get_application_status(seeker_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        current_app.logger.info(f"GET /job_seeker/{seeker_id}/application_status")
+        query = """
+        SELECT a.application_id, a.job_id, jp.title, a.stage, a.status, a.application_date
+        FROM Applications a
+        JOIN JobPosts jp ON a.job_id = jp.post_id
+        WHERE a.seeker_id = %s
+        ORDER BY a.application_date DESC
+        """
+        cursor.execute(query, (seeker_id,))
+        status = cursor.fetchall()
+        return jsonify(status), 200
+    except Error as e:
+        current_app.logger.error(f"Database error in get_application_status: {e}")
 
 ## Get detailed information for a specific job post.
 @job_seekers.route("/job_post/<int:post_id>", methods=["GET"])
@@ -67,6 +107,26 @@ def get_job_post(post_id):
         cursor.close()
 
 
+# --- Get employer contact info for a job post
+@job_seekers.route("/job_post/<int:post_id>/employer_contact", methods=["GET"])
+def get_employer_contact(post_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        current_app.logger.info(f"GET /job_post/{post_id}/employer_contact")
+        query = """
+        SELECT jp.poster_id, p.company_name, p.email, p.website
+        FROM JobPosts jp
+        JOIN JobPosters p ON jp.poster_id = p.poster_id
+        WHERE jp.post_id = %s
+        """
+        cursor.execute(query, (post_id,))
+        contact = cursor.fetchone()
+        if not contact:
+            return jsonify({"error": "Employer not found"}), 404
+        return jsonify(contact), 200
+    except Error as e:
+        current_app.logger.error(f"Database error in get_employer_contact: {e}")
+        
 ## Get company name, email, and website for a specific job poster.
 @job_seekers.route("/job_poster/<int:poster_id>", methods=["GET"])
 def get_job_poster(poster_id):
@@ -127,6 +187,27 @@ def create_application():
     finally:
         cursor.close()
 
+# --- Add a new resume (POST)
+@job_seekers.route("/resume", methods=["POST"])
+def add_resume():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json()
+        required_fields = ["seeker_id", "resume_text"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        query = """
+            INSERT INTO Resumes (seeker_id, resume_text, created_at)
+            VALUES (%s, %s, NOW())
+        """
+        cursor.execute(query, (
+            data["seeker_id"],
+            data["resume_text"]
+        ))
+        get_db().commit()
+        return jsonify({"message": "Resume added", "resume_id": cursor.lastrowid}), 201
+    except Error as e:
 
 ## Get detailed information for a specific application.
 @job_seekers.route("/application/<int:application_id>", methods=["GET"])
@@ -218,7 +299,6 @@ def delete_application(application_id):
     finally:
         cursor.close()
 
-
 ## Get all activities for a specific application with filter by type.
 @job_seekers.route("/application/<int:application_id>/activity", methods=["GET"])
 def get_application_activities(application_id):
@@ -244,7 +324,6 @@ def get_application_activities(application_id):
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
-
 
 ## Get profile information for a specific job seeker.
 @job_seekers.route("/job_seeker/<int:seeker_id>", methods=["GET"])
