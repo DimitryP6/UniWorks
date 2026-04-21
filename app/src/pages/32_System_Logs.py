@@ -32,7 +32,7 @@ if to_date:
 # Fetch and display logs
 # ------------------------------------------------------------
 try:
-    response = requests.get(f"{API_BASE}/system_log/", params=params)
+    response = requests.get(f"{API_BASE}/system_log", params=params)
     logs = response.json()
 
     if not logs:
@@ -61,7 +61,7 @@ resolved_date  = st.date_input("Resolved on", value=date.today(), key="resolve_d
 if st.button("Mark as Resolved", type="primary"):
     try:
         res = requests.put(
-            f"{API_BASE}/system_log/{int(log_id_resolve)}",
+            f"{API_BASE}/system_log {int(log_id_resolve)}",
             json={"resolution_status": "resolved", "resolved_at": str(resolved_date)},
         )
         st.success(res.json().get("message", "Log updated."))
@@ -95,7 +95,7 @@ if submitted:
             "resolved_at":       str(resolved_at) if resolved_at else None,
         }
         try:
-            res = requests.post(f"{API_BASE}/system_log/", json=payload)
+            res = requests.post(f"{API_BASE}/system_log", json=payload)
             data = res.json()
             st.success(f"Log created — ID: {data.get('log_id')}")
         except Exception as e:

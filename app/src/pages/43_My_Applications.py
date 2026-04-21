@@ -53,9 +53,21 @@ try:
             st.info('No applications yet. Browse jobs to get started!')
         else:
             for app in applications:
-                status_color = {'pending': '🟡', 'accepted': '🟢', 'rejected': '🔴'}.get(app.get('status', ''), '⚪')
-                with st.expander(f"{status_color} {app.get('title', 'Unknown Job')} — {app.get('status', 'N/A').capitalize()}"):
+                status_color = {
+                    'Waiting': '🟡',
+                    'Accepted': '🟢',
+                    'Rejected': '🔴',
+                    'Ghosted': '⚫',
+                    'Unknown': '⚪'
+                }.get(app.get('status', ''), '⚪')
+
+                with st.expander(
+                    f"{status_color} {app.get('title', 'Unknown Job')} — "
+                    f"{app.get('stage', 'N/A')} / {app.get('status', 'N/A')}"
+                ):
+                    st.write(f"**Application ID:** {app.get('application_id')}")
                     st.write(f"**Stage:** {app.get('stage', 'N/A')}")
+                    st.write(f"**Status:** {app.get('status', 'N/A')}")
                     st.write(f"**Applied:** {app.get('application_date', 'N/A')}")
                     if st.button('Withdraw', key=f"del_{app.get('application_id')}"):
                         try:

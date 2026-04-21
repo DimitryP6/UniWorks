@@ -11,7 +11,7 @@ st.write("View and manage admin accounts, roles, and access.")
 # Fetch and display all admins
 # ------------------------------------------------------------
 try:
-    response = requests.get(f"{API_BASE}/admin/")
+    response = requests.get(f"{API_BASE}/user")
     admins = response.json()
 
     if not admins:
@@ -37,7 +37,7 @@ admin_id_input = st.number_input("Admin ID to update", min_value=1, step=1)
 
 if st.button("Load Admin"):
     try:
-        res = requests.get(f"{API_BASE}/admin/{int(admin_id_input)}")
+        res = requests.get(f"{API_BASE}/admin/1{int(admin_id_input)}")
         if res.status_code == 404:
             st.warning("Admin not found.")
         else:
@@ -84,17 +84,4 @@ with st.form("new_admin_form"):
     submitted = st.form_submit_button("Create Admin")
 
 if submitted:
-    if not new_role or not new_user_id:
-        st.warning("User ID and role are required.")
-    else:
-        payload = {
-            "user_id":    int(new_user_id),
-            "role":       new_role,
-            "has_access": new_has_access,
-        }
-        try:
-            res = requests.post(f"{API_BASE}/admin/", json=payload)
-            data = res.json()
-            st.success(f"Admin created — ID: {data.get('admin_id')}")
-        except Exception as e:
-            st.error(f"Error: {e}")
+    st.warning("Creating new admins is not supported yet.")
