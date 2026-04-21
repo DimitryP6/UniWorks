@@ -5,6 +5,10 @@ import logging
 
 from backend.db_connection import init_app as init_db
 
+from backend.simple.simple_routes import simple_routes
+from backend.ngos.ngo_routes import ngos
+from backend.job_seeker.job_seeker_routes import job_seeker
+
 # The admin blueprints
 from backend.admin.user_routes import user_routes
 from backend.admin.admin_routes import admin_routes
@@ -44,6 +48,9 @@ def create_app():
     # Register the routes from each Blueprint with the app object
     # and give a url prefix to each.
     app.logger.info("create_app(): registering blueprints")
+    app.register_blueprint(simple_routes)
+    app.register_blueprint(ngos, url_prefix="/ngo")
+    app.register_blueprint(job_seeker, url_prefix="")
     app.register_blueprint(job_posts, url_prefix="/job_poster") 
     app.register_blueprint(user_routes, url_prefix="/user")
     app.register_blueprint(admin_routes, url_prefix="/admin")
