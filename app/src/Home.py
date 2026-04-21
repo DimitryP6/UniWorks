@@ -33,7 +33,7 @@ SideBarLinks(show_home=True)
 # ***************************************************
 
 logger.info("Loading the Home page of the app")
-st.title('CS 3200 Project Template')
+st.title('Welcome to UniWorks!')
 st.write('#### Hi! As which user would you like to log in?')
 
 # For each of the user personas for which we are implementing

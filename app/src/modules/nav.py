@@ -62,7 +62,7 @@ def view_applicants_nav():
  
 def post_limits_nav():
     st.sidebar.page_link(
-        "pages/13_Job_Limits.py", label="Job Limits & Links", icon="⚙️"
+        "pages/13_Job_Limits.py", label="Job Limits", icon="⚙️"
     )
  
  
