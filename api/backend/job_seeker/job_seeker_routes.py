@@ -151,7 +151,7 @@ def get_application(application_id):
         cursor.close()
 
 ## Update stage and status for a specific application
-@job_posts.route("/application/<int:application_id>", methods=["PUT"])
+@job_seekers.route("/application/<int:application_id>", methods=["PUT"])
 def update_application(application_id):
     cursor = get_db().cursor(dictionary=True)
     try:

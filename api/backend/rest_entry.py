@@ -9,12 +9,9 @@ from backend.simple.simple_routes import simple_routes
 from backend.ngos.ngo_routes import ngos
 
 # The job seeker blueprints
-from backend.job_seeker.job_seeker_routes import job_seeker
+from backend.job_seeker.job_seeker_routes import job_seekers
 # The admin blueprints
-from backend.admin.user_routes import user_routes
 from backend.admin.admin_routes import admin_routes
-from backend.admin.data_report_routes import data_report_routes
-from backend.admin.system_log_routes import system_log_routes
 # The data analyst blueprint
 from backend.data_analysts.data_analyst_routes import data_analysts
 # The job poster blueprint
@@ -49,12 +46,9 @@ def create_app():
     app.logger.info("create_app(): registering blueprints")
     app.register_blueprint(simple_routes)
     app.register_blueprint(ngos, url_prefix="/ngo")
-    app.register_blueprint(job_seeker, url_prefix="/job_seeker")
+    app.register_blueprint(job_seekers, url_prefix="/job_seeker")
     app.register_blueprint(job_posts, url_prefix="/job_poster") 
-    app.register_blueprint(user_routes, url_prefix="/user")
     app.register_blueprint(admin_routes, url_prefix="/admin")
-    app.register_blueprint(data_report_routes, url_prefix="/data_report")
-    app.register_blueprint(system_log_routes, url_prefix="/system_log")
     app.register_blueprint(data_analysts, url_prefix="/data_analyst")
 
     return app
