@@ -5,21 +5,17 @@ from modules.nav import SideBarLinks
 
 st.set_page_config(layout='wide')
 
-# Initialize sidebar
 SideBarLinks()
 
 st.title("Application Trends")
 st.write("See aggregated application trends across majors, industries, and stages.")
 
-# API endpoint
 API_URL = "http://web-api:4000/data_analyst/application/trends"
 APP_URL = "http://web-api:4000/data_analyst/application"
 
-# Filter section
 col1, col2, col3, col4 = st.columns(4)
 
 try:
-    # Fetch all applications to populate filter options
     all_apps_response = requests.get(APP_URL)
     if all_apps_response.status_code == 200:
         all_apps = all_apps_response.json()
@@ -45,7 +41,6 @@ try:
         with col4:
             selected_stage = st.selectbox("Filter by Stage", ["All"] + stages)
 
-        # Build query parameters
         params = {}
         if selected_major != "All":
             params["major"] = selected_major
@@ -56,7 +51,6 @@ try:
         if selected_stage != "All":
             params["stage"] = selected_stage
 
-        # Fetch trend data
         trends_response = requests.get(API_URL, params=params)
         if trends_response.status_code == 200:
             trends = trends_response.json()
@@ -65,11 +59,9 @@ try:
                 df = pd.DataFrame(trends)
                 st.write(f"Found {len(df)} trend groups")
 
-                # Display raw table
                 st.subheader("Trend Data")
                 st.dataframe(df, use_container_width=True)
 
-                # Charts section
                 st.write("---")
                 st.subheader("Visual Summary")
 

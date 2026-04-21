@@ -4,12 +4,10 @@ from modules.nav import SideBarLinks
 
 st.set_page_config(layout='wide')
 
-# Initialize sidebar
 SideBarLinks()
 
 st.title("Data Reports")
 
-# Initialize session state
 if "show_success_modal" not in st.session_state:
     st.session_state.show_success_modal = False
 if "success_message" not in st.session_state:
@@ -19,7 +17,6 @@ if "reset_form" not in st.session_state:
 if "form_key_counter" not in st.session_state:
     st.session_state.form_key_counter = 0
 
-# Success dialog
 @st.dialog("Success")
 def show_success_dialog(message):
     st.markdown(f"### {message}")
@@ -29,18 +26,14 @@ def show_success_dialog(message):
         st.session_state.success_message = ""
         st.rerun()
 
-# Handle form reset
 if st.session_state.reset_form:
     st.session_state.form_key_counter += 1
     st.session_state.reset_form = False
 
-# API endpoint
 API_URL = "http://web-api:4000/data_analyst/data_report"
 
-# Tabs for CRUD actions
 tab1, tab2, tab3, tab4 = st.tabs(["View Reports", "Create Report", "Update Report", "Delete Report"])
 
-# --- Tab 1: View All Reports ---
 with tab1:
     st.subheader("All Saved Reports")
     try:
@@ -64,7 +57,6 @@ with tab1:
     except requests.exceptions.RequestException as e:
         st.error(f"Error connecting to the API: {str(e)}")
 
-# --- Tab 2: Create New Report ---
 with tab2:
     st.subheader("Create New Report")
 
@@ -97,7 +89,6 @@ with tab2:
                 except requests.exceptions.RequestException as e:
                     st.error(f"Error connecting to the API: {str(e)}")
 
-# --- Tab 3: Update Report ---
 with tab3:
     st.subheader("Update Existing Report")
 
@@ -132,7 +123,6 @@ with tab3:
                 except requests.exceptions.RequestException as e:
                     st.error(f"Error connecting to the API: {str(e)}")
 
-# --- Tab 4: Delete Report ---
 with tab4:
     st.subheader("Delete Report")
     st.warning("This action cannot be undone.")
@@ -161,7 +151,6 @@ with tab4:
                 except requests.exceptions.RequestException as e:
                     st.error(f"Error connecting to the API: {str(e)}")
 
-# Show success dialog if applicable
 if st.session_state.show_success_modal:
     show_success_dialog(st.session_state.success_message)
     
