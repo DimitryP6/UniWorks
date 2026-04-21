@@ -4,29 +4,24 @@ from modules.nav import SideBarLinks
 
 st.set_page_config(layout='wide')
 
-# Initialize sidebar
 SideBarLinks()
 
 st.title("Analytics Dashboard")
 
-# API endpoint
 API_URL = "http://web-api:4000/data_analyst/application"
 
-# Create filter columns
 col1, col2, col3, col4 = st.columns(4)
 
-# Get all data first to extract unique filter values
 try:
     response = requests.get(API_URL)
     if response.status_code == 200:
         applications = response.json()
 
-        # Extract unique values for filters
+
         majors = sorted(list(set(a["major"] for a in applications if a.get("major"))))
         industries = sorted(list(set(a["industry"] for a in applications if a.get("industry"))))
         stages = sorted(list(set(a["stage"] for a in applications if a.get("stage"))))
-        # graduation_year comes back as RFC 1123 format like "Fri, 05 May 2027 00:00:00 GMT"
-        # We extract the year (4-digit part)
+
         import re
         def extract_year(date_str):
             match = re.search(r'\b(19|20)\d{2}\b', str(date_str))
@@ -36,7 +31,6 @@ try:
             if a.get("graduation_year") and extract_year(a["graduation_year"])
         )))
 
-        # Create filters
         with col1:
             selected_major = st.selectbox("Filter by Major", ["All"] + majors)
 
@@ -49,7 +43,6 @@ try:
         with col4:
             selected_year = st.selectbox("Filter by Graduation Year", ["All"] + grad_years)
 
-        # Build query parameters
         params = {}
         if selected_major != "All":
             params["major"] = selected_major
@@ -60,15 +53,12 @@ try:
         if selected_year != "All":
             params["grad_year"] = selected_year
 
-        # Get filtered data
         filtered_response = requests.get(API_URL, params=params)
         if filtered_response.status_code == 200:
             filtered_apps = filtered_response.json()
 
-            # Display results count
             st.write(f"Found {len(filtered_apps)} applications")
 
-            # Create expandable rows for each application
             for app in filtered_apps:
                 with st.expander(
                     f"Application #{app['application_id']} - {app.get('major', 'N/A')} "

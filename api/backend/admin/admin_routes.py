@@ -114,24 +114,24 @@ def delete_application(application_id):
         FROM applications
         WHERE application_id = %s
         """
-        cursor.execute(query, appplication_id)
+        cursor.execute(query, (application_id,))
         if not cursor.fetchone():
             return jsonify({"error": "Application not found"}), 404
         query = """
         DELETE FROM activities
         WHERE application_id = %s
         """
-        cursor.execute(query, appplication_id)
+        cursor.execute(query, (application_id,))
         query = """
         DELETE FROM application_reports
         WHERE application_id = %s
         """
-        cursor.execute(query, appplication_id)
+        cursor.execute(query, (application_id,))
         query = """
         DELETE FROM applications
         WHERE application_id = %s
         """
-        cursor.execute(query, appplication_id)
+        cursor.execute(query, (application_id,))
         get_db().commit()
         return jsonify({"message": "Duplicate application deleted successfully"}), 200
     except Error as e:
