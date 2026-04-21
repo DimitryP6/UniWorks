@@ -17,7 +17,7 @@ def get_job_posts():
         attendance_type = request.args.get("attendance_type")
         query = """
         SELECT *
-        FROM job_posts
+        FROM ngo_db.job_posts
         WHERE 1 = 1
         """
         params = []
@@ -51,9 +51,9 @@ def get_jobs_applied_to(seeker_id):
         current_app.logger.info(f"GET /job_seeker/{seeker_id}/jobs")
         query = """
         SELECT jp.*, a.application_id, a.stage, a.status
-        FROM applications a
-        JOIN job_posts jp ON a.job_id = jp.post_id
-        WHERE a.applicant_id = %s
+        FROM ngo_db.applications a
+        JOIN ngo_db.job_posts jp ON a.job_id = jp.post_id
+        WHERE a.seeker_id = %s
         ORDER BY a.application_date DESC
         """
         cursor.execute(query, (seeker_id,))
@@ -73,8 +73,8 @@ def get_application_status(seeker_id):
         current_app.logger.info(f"GET /job_seeker/{seeker_id}/application_status")
         query = """
         SELECT a.application_id, a.job_id, jp.title, a.stage, a.status, a.application_date
-        FROM applications a
-        JOIN job_posts jp ON a.job_id = jp.post_id
+        FROM ngo_db.applications a
+        JOIN ngo_db.job_posts jp ON a.job_id = jp.post_id
         WHERE a.seeker_id = %s
         ORDER BY a.application_date DESC
         """
@@ -83,6 +83,9 @@ def get_application_status(seeker_id):
         return jsonify(status), 200
     except Error as e:
         current_app.logger.error(f"Database error in get_application_status: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 ## Get detailed information for a specific job post.
 @job_seekers.route("/job_post/<int:post_id>", methods=["GET"])
@@ -92,7 +95,7 @@ def get_job_post(post_id):
         current_app.logger.info(f"GET /job_seeker/job_post/{post_id}")
         query = """
         SELECT *
-        FROM job_posts
+        FROM ngo_db.job_posts
         WHERE post_id = %s
         """
         cursor.execute(query, (post_id,))
@@ -113,11 +116,9 @@ def get_job_poster(poster_id):
     try:
         current_app.logger.info(f"GET /job_seeker/job_poster/{poster_id}")
         query = """
-        SELECT jp.company_name, jp.industry, u.email, cw.website_link
-        FROM job_posters jp
-        JOIN users u ON jp.user_id = u.user_id
-        INNER JOIN company_websites cw ON jp.poster_id = cw.poster_id
-        WHERE jp.poster_id = %s
+        SELECT company_name, email, website
+        FROM ngo_db.job_posters
+        WHERE poster_id = %s
         """
         cursor.execute(query, (poster_id,))
         result = cursor.fetchall()
@@ -143,7 +144,7 @@ def create_application():
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         query = """
-        INSERT INTO applications (seeker_id, job_id, resume_id, cover_letter, stage, status)
+        INSERT INTO ngo_db.applications (seeker_id, job_id, resume_id, cover_letter, stage, status)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query, (
@@ -176,7 +177,7 @@ def add_resume():
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         query = """
-            INSERT INTO Resumes (seeker_id, resume_text, created_at)
+            INSERT INTO ngo_db.resumes (seeker_id, resume_text, created_at)
             VALUES (%s, %s, NOW())
         """
         cursor.execute(query, (
@@ -199,7 +200,7 @@ def get_application(application_id):
         current_app.logger.info(f"GET /job_seeker/application/{application_id}")
         query = """
         SELECT *
-        FROM applications
+        FROM ngo_db.applications
         WHERE application_id = %s
         """
         cursor.execute(query, (application_id,))
@@ -222,7 +223,7 @@ def update_application(application_id):
         data = request.get_json()
 
         cursor.execute(
-            "SELECT application_id FROM applications WHERE application_id = %s",
+            "SELECT application_id FROM ngo_db.applications WHERE application_id = %s",
             (application_id,)
         )
         if not cursor.fetchone():
@@ -236,7 +237,7 @@ def update_application(application_id):
             return jsonify({"error": "No valid fields to update"}), 400
 
         params.append(application_id)
-        query = f"UPDATE applications SET {', '.join(update_fields)} WHERE application_id = %s"
+        query = f"UPDATE ngo_db.applications SET {', '.join(update_fields)} WHERE application_id = %s"
         cursor.execute(query, params)
         get_db().commit()
 
@@ -255,14 +256,14 @@ def delete_application(application_id):
     try:
         current_app.logger.info(f"DELETE /job_seeker/application/{application_id}")
         cursor.execute(
-            "SELECT application_id FROM applications WHERE application_id = %s",
+            "SELECT application_id FROM ngo_db.applications WHERE application_id = %s",
             (application_id,)
         )
         if not cursor.fetchone():
             return jsonify({"error": "Application not found"}), 404
 
         cursor.execute(
-            "DELETE FROM applications WHERE application_id = %s",
+            "DELETE FROM ngo_db.applications WHERE application_id = %s",
             (application_id,)
         )
         get_db().commit()
@@ -304,10 +305,10 @@ def get_application_activities(application_id):
 def get_job_seeker(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        current_app.logger.info(f"GET /job_seeker/job_seeker/{seeker_id}")
+        current_app.logger.info(f"GET /job_seeker/{seeker_id}")
         query = """
         SELECT seeker_id, name, email, major, grad_year
-        FROM job_seekers
+        FROM ngo_db.job_seekers
         WHERE seeker_id = %s
         """
         cursor.execute(query, (seeker_id,))
@@ -327,7 +328,7 @@ def get_job_seeker(seeker_id):
 def update_job_seeker(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        current_app.logger.info(f"PUT /job_seeker/job_seeker/{seeker_id}")
+        current_app.logger.info(f"PUT /job_seeker/{seeker_id}")
         data = request.get_json()
         allowed_fields = ["name", "email", "major", "grad_year"]
         update_fields = [f"{f} = %s" for f in allowed_fields if f in data]
@@ -336,7 +337,7 @@ def update_job_seeker(seeker_id):
             return jsonify({"error": "No valid fields to update"}), 400
         params.append(seeker_id)
         query = f"""
-        UPDATE job_seekers
+        UPDATE ngo_db.job_seekers
         SET {', '.join(update_fields)}
         WHERE seeker_id = %s
         """
@@ -355,13 +356,13 @@ def update_job_seeker(seeker_id):
 def get_seeker_applications(seeker_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        current_app.logger.info(f"GET /job_seeker/job_seeker/{seeker_id}/application")
+        current_app.logger.info(f"GET /job_seeker/{seeker_id}/application")
         query = """
         SELECT a.application_id, a.cover_letter, a.stage, a.status,
-               a.application_date, p.job_title, p.city_state, p.attendance_type
-        FROM applications a
-        JOIN job_posts p ON a.job_id = p.post_id
-        WHERE a.applicant_id = %s
+               a.application_date, p.title, p.location, p.attendance_type
+        FROM ngo_db.applications a
+        JOIN ngo_db.job_posts p ON a.job_id = p.post_id
+        WHERE a.seeker_id = %s
         ORDER BY a.application_date DESC
         """
         cursor.execute(query, (seeker_id,))
@@ -382,7 +383,7 @@ def get_resume(resume_id):
         current_app.logger.info(f"GET /job_seeker/resume/{resume_id}")
         query = """
         SELECT *
-        FROM resumes
+        FROM ngo_db.resumes
         WHERE resume_id = %s
         """
         cursor.execute(query, (resume_id,))
@@ -411,7 +412,7 @@ def update_resume(resume_id):
             return jsonify({"error": "No valid fields to update"}), 400
         params.append(resume_id)
         query = f"""
-        UPDATE resumes
+        UPDATE ngo_db.resumes
         SET {', '.join(update_fields)}
         WHERE resume_id = %s
         """
@@ -433,7 +434,7 @@ def get_personal_websites(resume_id):
         current_app.logger.info(f"GET /job_seeker/resume/{resume_id}/personal_website")
         query = """
         SELECT *
-        FROM personal_websites
+        FROM ngo_db.resumes
         WHERE resume_id = %s
         """
         cursor.execute(query, (resume_id,))
@@ -456,10 +457,11 @@ def add_personal_website(resume_id):
         if "website" not in data:
             return jsonify({"error": "Missing required field: website"}), 400
         query = """
-        INSERT INTO personal_websites (resume_id, website)
-        VALUES (%s, %s)
+        UPDATE ngo_db.resumes
+        SET resume_text = CONCAT(resume_text, ' | Website: ', %s)
+        WHERE resume_id = %s
         """
-        cursor.execute(query, (resume_id, data["website"]))
+        cursor.execute(query, (data["website"], resume_id))
         get_db().commit()
         return jsonify({"message": "Personal website added successfully"}), 201
     except Error as e:
@@ -478,22 +480,17 @@ def delete_personal_website(resume_id):
         data = request.get_json()
         if "website" not in data:
             return jsonify({"error": "Missing required field: website"}), 400
-        query = """
-        SELECT *
-        FROM resumes
-        WHERE resume_id = %s
-        """
-        cursor.execute(query, resume_id)
+        cursor.execute(
+            "SELECT resume_id FROM ngo_db.resumes WHERE resume_id = %s",
+            (resume_id,)
+        )
         if not cursor.fetchone():
             return jsonify({"error": "Resume not found"}), 404
-        query = """
-        DELETE FROM personal_websites
-        WHERE resume_id = %s AND website = %s
-        """
-        cursor.execute(query, (resume_id, data["website"]))
+        cursor.execute(
+            "UPDATE ngo_db.resumes SET resume_text = REPLACE(resume_text, %s, '') WHERE resume_id = %s",
+            (f" | Website: {data['website']}", resume_id)
+        )
         get_db().commit()
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Website not found"}), 404
         return jsonify({"message": "Personal website removed successfully"}), 200
     except Error as e:
         current_app.logger.error(f"Database error in delete_personal_website: {e}")
