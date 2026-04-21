@@ -15,7 +15,7 @@ API_BASE = 'http://web-api:4000'
 seeker_id = st.session_state.get('seeker_id', 1)
 
 try:
-    response = requests.get(f'{API_BASE}/job_seeker/job_seeker/{seeker_id}')
+    response = requests.get(f'{API_BASE}/job_seeker/{seeker_id}')
     if response.status_code == 200:
         profile = response.json()
 
